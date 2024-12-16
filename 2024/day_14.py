@@ -79,7 +79,7 @@ def print_after_n(robots: List[Robot], n: int):
  
 button_delay = 0.2
 idx = 7861
-step = 1
+step = 101
 while True:
  
     if keyboard.is_pressed("l"):
