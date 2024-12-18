@@ -1,3 +1,5 @@
+from typing import List
+
 class Coordinate():
     def __init__(self,x,y) -> None:
         self.x = x
@@ -45,72 +47,40 @@ class Grid():
                 new_line+=c
         self.data[coord.y] = new_line
 
-
-def dfs_path_to_end(pos: Coordinate, dir: Coordinate, cache, this_route):
-    hashed = hash((pos, dir))
-    if hashed in cache:
-        return cache[hashed]
-    
-    if pos in this_route: #already visited
-        return 1e10, this_route
-    else:
-        this_route.add(pos)
-    
-    # recursively try all paths from here
-    paths = []
-    if grid.get_coordinate(pos+dir) == 'E':
-        return 1, this_route
-    elif grid.get_coordinate(pos+dir) == '.':
-        paths.append((pos+dir, dir, 1))
-
-    for d in turn_dir_map[dir]:
-        pt = grid.get_coordinate(pos+d)
-        if pt == 'E':
-            return 1001, this_route
-        elif pt == '.':
-            paths.append((pos+d, d, 1001))
-
-    if len(paths) == 0:
-        return 1e10, this_route
-    costs = []
-    routes = []
-    for p, d, c in paths:
-        cost, route = dfs_path_to_end(p, d, cache, this_route.copy())
-        costs.append(cost+c)
-        routes.append(route)
-
-    this_route = routes[costs.index(min(costs))]
-    cache[hashed] = (min(costs), this_route)
-    return min(costs), this_route
-
-def bfs_path_to_start(pos: Coordinate, dir: Coordinate, cache, cost_to_here: int):
+def bfs_path_to_start(pos: Coordinate, dir: Coordinate, cache, cost_to_here: int, seen_on_route: List[Coordinate]):
+    seen_on_route.append(pos)
     hashed = hash((pos, dir))
     if pos == grid.entry:
         print(cost_to_here)
     if hashed in cache:
-        if cost_to_here < cache[hashed]:
+        if cost_to_here <= cache[hashed]: # less than or equal makes this much less efficient but is needed for part 2
             cache[hashed] = cost_to_here
         else:
             return []
     else:
         cache[hashed] = cost_to_here
+        # print(pos, cost_to_here)
 
     paths = []
-    if grid.get_coordinate(pos+dir) == 'S':
-        return []
+    if grid.get_coordinate(pos+dir) == 'E':
+        cache[hash((pos+dir,dir))] = cost_to_here+1
+        seen_on_route.append(pos+dir)
+        return (seen_on_route, cost_to_here+1)
     elif grid.get_coordinate(pos+dir) == '.':
-        paths.append((pos+dir, dir, cost_to_here+1))
+        paths.append((pos+dir, dir, cost_to_here+1, seen_on_route.copy()))
     for d in turn_dir_map[dir]:
         pt = grid.get_coordinate(pos+d)
-        if pt == 'S':
-            return []
+        if pt == 'E':
+            cache[hash((pos+d,d))] = cost_to_here+1001
+            seen_on_route.append(pos+d)
+            return (seen_on_route, cost_to_here+1001)
         elif pt == '.':
-            paths.append((pos+d, d, cost_to_here+1001))
+            paths.append((pos+d, d, cost_to_here+1001, seen_on_route.copy()))
 
     return paths
 
 input_file = "2024/inputs/day_16_input.txt"
-input_file = "2024/inputs/day_16_example.txt"
+# input_file = "2024/inputs/day_16_example.txt"
 # input_file = "2024/inputs/day_16_example_2.txt"
 
 data = []
@@ -140,10 +110,38 @@ start_orientation = Coordinate(1,0)
 cache = {} # pos, orientation
 
 # print(get_cost_to_end(start_pos, start_orientation, cache, cost_in, 0, turn_dir_map))
-paths = [(end_pos, Coordinate(-1,0),0), (end_pos, Coordinate(0,-1), 0)]
+paths = [(start_pos, Coordinate(1,0),0, [start_pos])]
+
+best_cost = 1e10
+paths_to_end = []
 while len(paths)>0:
     new_paths = []
-    for pos, dir, cost in paths:
-        new_paths.extend(bfs_path_to_start(pos, dir, cache, cost))
+    for pos, dir, cost, seen in paths:
+        if cost>best_cost:
+            continue
+        np = bfs_path_to_start(pos, dir, cache, cost, seen)
+        if len(np)!=0:
+            if len(np[0]) == 4:
+                new_paths.extend(np)
+            else:
+                paths_to_end.append((np[1],np[0]))
+                best_cost = min(best_cost, np[1])
     paths = new_paths
 
+route_scores = []
+for key in icons:
+    hash_end = hash((grid.exit, key))
+    if hash_end in cache:
+        route_scores.append(cache[hash_end])
+
+print(f"The answer to part 1 is {min(route_scores)}")
+
+seen_on_best = set()
+for p in paths_to_end:
+    if p[0] == best_cost:
+        seen_on_best.update(set(p[1]))
+
+print(f"The answer to part 2 is {len(seen_on_best)}")
+
+
+# 129536 too low
