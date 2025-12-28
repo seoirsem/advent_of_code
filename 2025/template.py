@@ -1,11 +1,15 @@
 import argparse
 
-test_input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124"
-
+test_input = """
+"""
 
 def main(test: bool=True):
-    print(test)
+    if test:
+        input = test_input.split("\n")
+    else:
+        input = [x.strip() for x in open("2025/data_x.txt")]
 
+    print(input)
 
 def parse_args():
     parser = argparse.ArgumentParser()
