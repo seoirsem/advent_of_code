@@ -41,6 +41,10 @@ class Boundary:
             return [self.end[1], self.start[1]]
         return [self.start[1], self.end[1]]
     
+    def test_internal(self, point):
+        # project a line count intersections
+        pass
+
     def intersect(self, other_line):
         if self.start in [other_line.start, other_line.end]:
             return None
@@ -50,7 +54,7 @@ class Boundary:
         if self.vertical == other_line.vertical:
             return None
 
-        # other line crosses in x    (9, 5) (2, 5) | (9, 7) (9, 3)   
+        # other line crosses in x (9, 5) (2, 5) | (9, 7) (9, 3)   
         if self.vertical:
             sorted_y = self.get_sorted_y()
             other_y = other_line.start[1]
