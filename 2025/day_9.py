@@ -89,7 +89,7 @@ def check_set_neighbours(set_in, coord):
     if (coord[0], coord[1]+1) in set_in:
         return (coord[0], coord[1]+1)
     if (coord[0], coord[1]-1) in set_in:
-        return (coord[0], coord[1]+1)
+        return (coord[0], coord[1]-1)
     if (coord[0]+1, coord[1]) in set_in:
         return (coord[0]+1, coord[1])
     if (coord[0]-1, coord[1]) in set_in:
@@ -128,9 +128,9 @@ class Distances:
                 # print(intersect)
                 any_neighbour = check_set_neighbours(intersects, intersect)
                 if any_neighbour:
-                    intersects.pop(any_neighbour)
+                    intersects.discard(any_neighbour)
                 else:
-                    intersects.add(any_neighbour)
+                    intersects.add(intersect)
         return len(intersects) != 0
 
 

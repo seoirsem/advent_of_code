@@ -2,6 +2,7 @@ import argparse
 from time import time
 start = time()
 import re
+import numpy as np
 
 square = re.compile(r"\[(.*?)\]")
 round = re.compile(r"\(([^\[\]()]+)\)")
@@ -66,26 +67,15 @@ class Switches:
 
     def try_all_joltage(self):
         # Brute force no werk...
-        visited = set()
-        states = [[0]*self.num_targets]
-        i = 0
-        while True:
-            i+=1
-            new_states = []
-            for state in states:
-                for switch in self.switches:
-                    state_out = add_joltage_states(state, switch)
-                    if state_out == self.curly:
-                        return i
-                    elif self.exceeds_requirement(state_out):
-                        continue
-                    elif tuple(state_out) in visited:
-                        continue
-                    else:
-                        visited.add(tuple(state_out))
-                        new_states.append(state_out)
-            states = new_states
+        min_tar =  
+        print(self.curly)
+        matrix = np.matrix(self.switches)
+        print(matrix)
+        # print(np.linalg.inv(matrix))
+        # if state_out == self.curly:
+        #     return i
             
+        return 0
 
 def main(test: bool=True):
     if test:
@@ -98,7 +88,7 @@ def main(test: bool=True):
     for inp in input:
         switch = Switches(inp)
         total += switch.try_all()
-        # total_2 += switch.try_all_joltage()
+        total_2 += switch.try_all_joltage()
     print(f"The answer to part 1 is {total}")
     print(f"The answer to part 2 is {total_2}")
 
